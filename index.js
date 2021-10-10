@@ -1,7 +1,7 @@
 const authConfig = {
-  "siteName": "GDIndex", // WebSite Name
-  "siteIcon": "https://raw.githubusercontent.com/cheems/GDIndex/master/images/favicon.png",
-  "version": "4.28", // VersionControl, do not modify manually
+  "siteName": "GoIndex Extended", // WebSite Name
+  "siteIcon": "https://raw.githubusercontent.com/cheems/goindex-extended/master/images/favicon-x.png", //or fevicon-x-light.png
+  "version": "1.3.5", // VersionControl, do not modify manually
 // client_id & client_secret - PLEASE USE YOUR OWN!
   "client_id": "", // Client ID
   "client_secret": "", // Client Secret
@@ -10,8 +10,7 @@ const authConfig = {
   * Set up multiple Drives to be displayed; add multiples by format
   * [id]: It can be team folder id, subfolder id, or "root" (representing the root directory of personal disk);
   * [name]: the displayed name
-  * [user]: Basic Auth username
-  * [pass]: Basic Auth password
+  * [auth]: {'username_1' : 'password_1', 'username_2' : 'password_2'} 
   * [protect_file_link]: Whether Basic Auth is used to protect the file link, the default value (when not set) is false, that is, the file link is not protected (convenient for straight chain download / external playback, etc.)
   * Basic Auth of each folder can be set separately. Basic Auth protects all folders / subfolders in the disk by default
   * [Note] By default, the file link is not protected, which can facilitate straight-chain download / external playback;
@@ -23,18 +22,39 @@ const authConfig = {
     {
       id: "root", //you can use folderid other than root but then search wont work
       name: "Personal Drive",
-      user: 'username',
-      pass: 'password',
+      
+      /* provide 'username':'password' combinations seperated by commas. 
+       * If you add empty values like this => auth":{"":""} then the site will still ask for authentication but user can enter without entering any data by clicking submit
+       */
+
+      // To enable password protection, uncomment the below code line(remove "//" in the front of the below code line)
+      // auth: {'username_1' : 'password_1', 'username_2' : 'password_2'},
       protect_file_link: false //true or false
     },
     {
-        id: "drive_id",
-        name: "Personal Drive II",
-        user: 'username',
-        pass: 'password',
-        protect_file_link: false
-      }
+      id: "drive_id",
+      name: "Personal Drive II",
+      // To enable password protection, uncomment the below line
+      // auth: {'username_1' : 'password_1', 'username_2' : 'password_2'},
+      protect_file_link: false
+    },
+    // You can add more drives like above
+  /*{
+      id: "drive_id",
+      name: "Personal Drive II",
+      // To enable password protection, uncomment the below line
+      // auth: {'username_1' : 'password_1', 'username_2' : 'password_2'},
+      protect_file_link: false
+    }, */
   ],
+//Set this to true if you need to let users download files which Google Drive has flagged as a virus
+  "enable_virus_infected_file_down": false,
+//Set this to true if you want to sort the list by modified time
+  "sort_by_modified_time": false,
+//Set this to true if you need to let users download deleted files from the current drive
+  "include_trashed_files": false, // Then files will be visible at where they were before moving to the trash bin
+//Set this to true if you want to force directories to load. This may cause you to exceed API rate limits
+  "force_list_to_load": false,
 /**
   * The number displayed on each page of the file list page. [Recommended setting value is between 100 and 1000];
   * If the setting is greater than 1000, it will cause an error when requesting drive api;
@@ -64,12 +84,64 @@ const authConfig = {
  */
 const uiConfig = {
   "theme": "material", // DO NOT set it to classic
-  "dark_mode": true, //true or false
-  "hide_madewithlove": false, // Set this to true if you want to hide made-with-love text at the bottom of the page
+  "dark_mode": true, // true or false
+  "title_include_drive_name": false, // Set this to true if you need to add drive name to the page title which will be displayed in browser tab name area (ex: Goindex Extented - Disk 01)
+  "title_include_path": "", // full-path | current-directory | or leave it empty
+                            // set title_include_path to "full-path" if you want to add full path of the current directory to title (ex: Goindex Extented - /Multimedia/images/) or (ex: Goindex Extented - Disk 01 - /Multimedia/images)
+                            // set title_include_path to "current-directory" to add current directory to title (ex: Goindex Extented - /images/)
+                            // If you need to remove path from page title, leave it empty as it is
+  "hide_actions_tab": false, // Set this to true if you want to hide the actions tab which contains direct dowload, copy link, open in a new tab button
+  "hide_head_md": false, // Set this to true if you need to disable rendering HEAD.md
+  "hide_readme_md": false, // Set this to true if you need to disable rendering README.md
   "helpURL": "", // Provide the URL of the help page(instructions for using the index). Leave this empty if you want to hide the help icon. Providing a URL will open the help page in a new tab. (You can use telegra.ph to write instructions)
+  "footer_text": "Made with <3", // Provide the footer text. Leave this empty if you want to hide it.
+  "credits": true, // Set this to true if you like to give credits. Otherwise you can set it to false. (NO BIG DEAL:3)
   "main_color": "blue-grey", // blue-grey | red | pink | purple | deep-purple | indigo | blue | light-blue | cyan | teal | green | light-green | lime | yellow | amber | orange | deep-orange | brown | grey
   "accent_color": "blue" // red | pink | purple | deep-purple | indigo | blue | light-blue | cyan | teal | green | light-green | lime | yellow | amber | orange | deep-orange
 // blue-grey and blue suit with both light and dark themes
+};
+
+/**
+ * Google Workspace Apps Export config
+ *
+ * Set preferred extensions that workspace files need to be downloaded.
+ * Use one of available extensions mentioned next to each value.
+ * Don't change the current values if you need to use the default extensions which Google drive uses.
+ */
+const exportConfig = {
+  "documents": "docx", // docx | odt | rtf | pdf | txt | html | html/zipped | epub
+  "spreadsheets": "xlsx", // xlsx | ods | csv | pdf | html/zipped
+  "slides": "pptx", // pptx | odp | pdf | txt
+  "drawings": "jpg", // pdf | jpg | png | svg
+  "jamboard": "pdf", // pdf
+  "forms": "html/zipped" // html/zipped
+};
+
+const exportExtensions = {
+  "application/vnd.google-apps.document": exportConfig.documents,
+  "application/vnd.google-apps.spreadsheet": exportConfig.spreadsheets,
+  "application/vnd.google-apps.presentation": exportConfig.slides,
+  "application/vnd.google-apps.drawing": exportConfig.drawings,
+  "application/vnd.google-apps.jam": exportConfig.jamboard,
+  "application/vnd.google-apps.form": exportConfig.forms
+};
+
+const workspaceExportMimeTypes = {
+  "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "odt": "application/vnd.oasis.opendocument.text",
+  "rtf": "application/rtf",
+  "pdf": "application/pdf",
+  "txt": "text/plain",
+  "html": "text/html",
+  "html/zipped": "application/zip",
+  "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "ods": "application/x-vnd.oasis.opendocument.spreadsheet",
+  "csv": "text/csv",
+  "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  "odp": "application/vnd.oasis.opendocument.presentation",
+  "jpg": "image/jpeg",
+  "png": "image/png",
+  "svg": "image/svg+xml"
 };
 
 /**
@@ -120,7 +192,7 @@ function html(current_drive_order = 0, model = {}) {
     window.current_drive_order = ${current_drive_order};
     window.UI = JSON.parse('${JSON.stringify(uiConfig)}');
   </script>
-  <script src="https://rawcdn.githack.com/cheems/GDIndex/a3c286b2d4615f2ffb546e135c5ed41e76ced622/app.js"></script>
+  <script src="https://rawcdn.githack.com/cheems/goindex-extended/ad978bb62b6505edce554eb3ad70229d36f22488/app.js"></script>
 </head>
 <body>
 </body>
@@ -131,6 +203,17 @@ function html(current_drive_order = 0, model = {}) {
 addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request));
 });
+
+function id2crc32(r) {
+  for (var a, o = [], c = 0; c < 256; c++) {
+      a = c;
+      for (var f = 0; f < 8; f++) a = 1 & a ? 3988292384 ^ a >>> 1 : a >>> 1;
+      o[c] = a
+  }
+  for (var n = -1, t = 0; t < r.length; t++) n = n >>> 8 ^ o[255 & (n ^ r.charCodeAt(t))]
+  ;
+  return (-1 ^ n) >>> 0
+};
 
 /**
  * Fetch and log a request
@@ -251,7 +334,7 @@ async function handleRequest(request) {
     let range = request.headers.get('Range');
     const inline_down = 'true' === url.searchParams.get('inline');
     if (gd.root.protect_file_link && basic_auth_res) return basic_auth_res;
-    return gd.down(file.id, range, inline_down);
+    return gd.down(file.id, file.mimeType, range, inline_down);
   }
 }
 
@@ -377,30 +460,50 @@ class googleDrive {
    * @returns {Response|null}
    */
   basicAuthResponse(request) {
-    const user = this.root.user || '',
-      pass = this.root.pass || '',
-      _401 = new Response('Unauthorized', {
-        headers: {'WWW-Authenticate': `Basic realm="goindex:drive:${this.order}"`},
+    const auth = this.root.auth || '',
+      _401 = new Response('unauthorized', {
+        headers: {
+                  'WWW-Authenticate': `Basic realm="goindex:drive:${this.order}"`,
+                  'content-type': 'text/html;charset=UTF-8'
+        },
         status: 401
       });
-    if (user || pass) {
-      const auth = request.headers.get('Authorization')
-      if (auth) {
+    if (auth) {
+      const _auth = request.headers.get('Authorization')
+      if (_auth) {
         try {
-          const [received_user, received_pass] = atob(auth.split(' ').pop()).split(':');
-          return (received_user === user && received_pass === pass) ? null : _401;
-        } catch (e) {
-        }
+          const [received_user, received_pass] = atob(_auth.split(' ').pop()).split(':');
+            if (auth.hasOwnProperty(received_user)) {
+              if (auth[received_user] == received_pass) {
+                return null;
+              } else return _401;
+            } else return _401;
+        } catch (e) {}
       }
     } else return null;
     return _401;
   }
 
-  async down(id, range = '', inline = false) {
-    let url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media`;
+  async down(id, mimeType, range = '', inline = false) {
+    let exportExtension = exportExtensions[mimeType];
+    let exportMimeType = workspaceExportMimeTypes[exportExtension];
+    let url;
+    if (exportExtensions.hasOwnProperty(mimeType)) {
+      url = `https://www.googleapis.com/drive/v3/files/${id}/export?alt=media&mimeType=${exportMimeType}`;
+    } else if (mimeType === "application/vnd.google-apps.script") {
+      url = `https://script.google.com/feeds/download/export?id=${id}&format=json`;
+    }else {
+      url = `https://www.googleapis.com/drive/v3/files/${id}?alt=media`;
+    }
     let requestOption = await this.requestOption();
     requestOption.headers['Range'] = range;
     let res = await fetch(url, requestOption);
+    if (this.authConfig.enable_virus_infected_file_down) {
+      if (res.status === 403) {
+        url += '&acknowledgeAbuse=true';
+        res = await this.fetch200(url, requestOption);
+      }
+    }
     const {headers} = res = new Response(res.body, res)
     this.authConfig.enable_cors_file_down && headers.append('Access-Control-Allow-Origin', '*');
     inline === true && headers.set('Content-Disposition', 'inline');
@@ -417,22 +520,63 @@ class googleDrive {
   async _file(path) {
     let arr = path.split('/');
     let name = arr.pop();
+    let _temp_name = name;
     name = decodeURIComponent(name).replace(/\'/g, "\\'");
+    let dupID;
+    if (/\(dupID: \d+\)/.test(name.substring(name.search(/\(dupID: \d+\)/)))) {
+        dupID = name.substring(0, name.length - 1).substring(name.search(/\(dupID: \d+/)+8);
+        name = name.substring(0, name.search(/\(dupID: \d+\)/) - 1);
+    }
     let dir = arr.join('/') + '/';
     // console.log(name, dir);
     let parent = await this.findPathId(dir);
     // console.log(parent);
     let url = 'https://www.googleapis.com/drive/v3/files';
     let params = {'includeItemsFromAllDrives': true, 'supportsAllDrives': true};
-    params.q = `'${parent}' in parents and name = '${name}' and trashed = false`;
-    params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink)";
+    params.q = `'${parent}' in parents and name = '${name}'`;
+    if (!this.authConfig.include_trashed_files) {
+      params.q += ' and trashed = false';
+    }
+    params.fields = "files(id, name, mimeType, size ,createdTime, modifiedTime, iconLink, thumbnailLink, shortcutDetails)";
     url += '?' + this.enQuery(params);
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
+    if (this.authConfig.force_list_to_load) {
+      if (response.status !== 200) {
+        response = await this.fetch200(url, requestOption);
+      }
+    }
     let obj = await response.json();
+    if (!obj.files[0]) {
+      return null
+    } else if (obj.files.length > 1) {
+      if (dupID) {
+        let correct_file_item;
+        obj.files.map(function(item){
+          if (id2crc32(item.id).toString() === dupID) {
+            correct_file_item = item;
+          }
+        })
+        obj.files = [];
+        obj.files.push(correct_file_item);
+      }
+    }
+    if (obj.files && obj.files[0] && obj.files[0].mimeType == 'application/vnd.google-apps.shortcut'){
+      obj.files[0].id = obj.files[0].shortcutDetails.targetId;
+      obj.files[0].mimeType = obj.files[0].shortcutDetails.targetMimeType;
+    }
     // console.log(obj);
-    return obj.files[0];
-  }
+    if (_temp_name.includes("%5C%5C")) {
+      name = _temp_name.replaceAll("%5C%5C", "%5C");
+      name = decodeURIComponent(name);
+    }
+    const same_name = obj.files.find(v => v.name === name)
+    if (!same_name) {
+      return obj.files[0];
+    }
+    return same_name;
+    // return obj.files[0];
+    }
 
   // Cache through reqeust cache
   async list(path, page_token = null, page_index = 0) {
@@ -479,9 +623,16 @@ class googleDrive {
     }
     let obj;
     let params = {'includeItemsFromAllDrives': true, 'supportsAllDrives': true};
-    params.q = `'${parent}' in parents and trashed = false AND name !='.password'`;
-    params.orderBy = 'folder,name,modifiedTime desc';
-    params.fields = "nextPageToken, files(id, name, mimeType, size , modifiedTime)";
+    params.q = `'${parent}' in parents AND name !='.password'`;
+    if (!this.authConfig.include_trashed_files) {
+      params.q += ' and trashed = false';
+    }
+    if (this.authConfig.sort_by_modified_time) {
+      params.orderBy = 'folder,modifiedTime desc,name';
+    } else {
+      params.orderBy = 'folder,name,modifiedTime desc';
+    }
+    params.fields = "nextPageToken, files(id, name, mimeType, size , modifiedTime, shortcutDetails)";
     params.pageSize = this.authConfig.files_list_page_size;
 
     if (page_token) {
@@ -491,7 +642,34 @@ class googleDrive {
     url += '?' + this.enQuery(params);
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
+    if (this.authConfig.force_list_to_load) {
+      if (response.status !== 200) {
+        response = await this.fetch200(url, requestOption);
+      }
+    }
     obj = await response.json();
+    let temp_names = [];
+    let duplicate_names = [];
+    obj.files.map(function(item){
+        if(!temp_names.includes(item.name)){
+            temp_names.push(item.name)
+        } else {
+            if(!duplicate_names.includes(item.name)) {
+                duplicate_names.push(item.name)
+            }
+        }
+    })
+    obj.files.map(function(item){
+        if(duplicate_names.includes(item.name)) {
+            item.name = item.name + " (dupID: " + id2crc32(item.id) + ")"
+        }
+    })
+    obj.files.forEach(file => {
+      if (file && file.mimeType == 'application/vnd.google-apps.shortcut') {
+        file.id = file.shortcutDetails.targetId;
+        file.mimeType = file.shortcutDetails.targetMimeType;
+      }
+    });
 
     return {
       nextPageToken: obj.nextPageToken || null,
@@ -547,6 +725,9 @@ class googleDrive {
     let url = `https://www.googleapis.com/drive/v3/drives/${any_id}`;
     let requestOption = await this.requestOption();
     let res = await fetch(url, requestOption);
+    if (res.status !== 200) {
+      res = await this.fetch200(url, requestOption);
+    }
     let obj = await res.json();
     if (obj && obj.id) return obj;
 
@@ -562,6 +743,8 @@ class googleDrive {
     const types = CONSTS.gd_root_type;
     const is_user_drive = this.root_type === types.user_drive;
     const is_share_drive = this.root_type === types.share_drive;
+    const is_sub_folder = this.root_type === types.sub_folder;
+
 
     const empty_result = {
       nextPageToken: null,
@@ -569,9 +752,9 @@ class googleDrive {
       data: null
     };
 
-    if (!is_user_drive && !is_share_drive) {
-      return empty_result;
-    }
+    // if (!is_user_drive && !is_share_drive) {
+    //   return empty_result;
+    // }
     let keyword = FUNCS.formatSearchKeyword(origin_keyword);
     if (!keyword) {
       // Keyword is empty, return
@@ -595,10 +778,19 @@ class googleDrive {
     if (page_token) {
       params.pageToken = page_token;
     }
-    params.q = `trashed = false AND name !='.password' AND (${name_search_str})`;
+    params.q = `name !='.password' AND (${name_search_str})`;
+    if (!this.authConfig.include_trashed_files) {
+      params.q += ' and trashed = false';
+    }
     params.fields = "nextPageToken, files(id, name, mimeType, size , modifiedTime)";
     params.pageSize = this.authConfig.search_result_list_page_size;
     // params.orderBy = 'folder,name,modifiedTime desc';
+    if (is_sub_folder) {
+      params.corpora = 'allDrives';
+      params.supportsAllDrives = true;
+      params.includeItemsFromAllDrives = true;
+      params.q += `AND '${this.root.id}' in parents`;
+    }
 
     let url = 'https://www.googleapis.com/drive/v3/files';
     url += '?' + this.enQuery(params);
@@ -721,12 +913,18 @@ class googleDrive {
     let arr = path.trim('/').split('/');
     for (let name of arr) {
       c_path += name + '/';
-
+      let findDirId_again;
       if (typeof this.paths[c_path] == 'undefined') {
         let id = await this._findDirId(c_id, name);
         this.paths[c_path] = id;
+        findDirId_again = false;
       }
-
+      findDirId_again = true;
+      if (name.includes('%5C%5C') && findDirId_again) {
+        let id = await this._findDirId(c_id, name);
+        console.log("id: " + id)
+        this.paths[c_path] = id;
+      }
       c_id = this.paths[c_path];
       if (c_id == undefined || c_id == null) {
         break;
@@ -737,26 +935,86 @@ class googleDrive {
   }
 
   async _findDirId(parent, name) {
+    let _temp_name = name;
     name = decodeURIComponent(name).replace(/\'/g, "\\'");
-
-    // console.log("_findDirId", parent, name);
-
+    let dupID;
+    if (/\(dupID: \d+\)/.test(name.substring(name.search(/\(dupID: \d+\)/)))) {
+        dupID = name.substring(0, name.length - 1).substring(name.search(/\(dupID: \d+/)+8);
+        name = name.substring(0, name.search(/\(dupID: \d+\)/) - 1);
+    }
     if (parent == undefined) {
       return null;
     }
 
     let url = 'https://www.googleapis.com/drive/v3/files';
     let params = {'includeItemsFromAllDrives': true, 'supportsAllDrives': true};
-    params.q = `'${parent}' in parents and mimeType = 'application/vnd.google-apps.folder' and name = '${name}'  and trashed = false`;
-    params.fields = "nextPageToken, files(id, name, mimeType)";
+    params.q = `'${parent}' in parents and (mimeType = 'application/vnd.google-apps.folder' or mimeType = 'application/vnd.google-apps.shortcut') and name = '${name}'`;
+    if (!this.authConfig.include_trashed_files) {
+      params.q += ' and trashed = false';
+    }
+    params.fields = "nextPageToken, files(id, name, mimeType, shortcutDetails)";
     url += '?' + this.enQuery(params);
     let requestOption = await this.requestOption();
     let response = await fetch(url, requestOption);
+    if (this.authConfig.force_list_to_load) {
+      if (response.status !== 200) {
+        response = await this.fetch200(url, requestOption);
+      }
+    }
     let obj = await response.json();
-    if (obj.files[0] == undefined) {
+    // stock
+    // if (obj.files[0] == undefined) {
+    //   return null;
+    // }
+    // return obj.files[0].id;
+    
+    // iwestlin PR
+    // if (!obj.files) return null
+    // const same_name = obj.files.find(v => v.name === name)
+    // if (!same_name) return null
+    // return same_name.id
+
+
+    // Success attempt #1
+    // if (!obj.files[0]) return null
+    // if (obj.files.find(v => v.name === name)) {
+    //     const same_name = obj.files.find(v => v.name === name)
+    //     return same_name.id
+    // } else {
+    //     return obj.files[0].id;
+    // }
+    
+    // Success attempt #2
+    if (!obj.files[0]) {
+      return null
+    } else if (obj.files.length > 1) {
+      obj.files = obj.files.reverse();
+      if (dupID) {
+        let correct_folder_item;
+        obj.files.map(function(item){
+          if (id2crc32(item.id).toString() === dupID) {
+            correct_folder_item = item;
+          }
+        })
+        obj.files = [];
+        obj.files.push(correct_folder_item);
+      }
+    }
+    if (obj.files[0].mimeType == 'application/vnd.google-apps.shortcut' && obj.files[0].shortcutDetails.targetMimeType == 'application/vnd.google-apps.folder') {
+      obj.files[0].id = obj.files[0].shortcutDetails.targetId;
+    } else if (obj.files[0].mimeType == 'application/vnd.google-apps.shortcut' && obj.files[0].shortcutDetails.targetMimeType != 'application/vnd.google-apps.folder'){
       return null;
     }
-    return obj.files[0].id;
+    
+    if (_temp_name.includes("%5C%5C")) {
+      name = _temp_name.replaceAll("%5C%5C", "%5C");
+      name = decodeURIComponent(name);
+    }
+    const same_name = obj.files.find(v => v.name === name)
+    if (!same_name) {
+        return obj.files[0].id;
+    }
+    return same_name.id
   }
 
   async accessToken() {
@@ -796,13 +1054,14 @@ class googleDrive {
 
   async fetch200(url, requestOption) {
     let response;
+    await this.sleep(1100);
     for (let i = 0; i < 3; i++) {
       response = await fetch(url, requestOption);
-      console.log(response.status);
+      console.log("Response status:", response.status);
       if (response.status != 403) {
         break;
       }
-      await this.sleep(800 * (i + 1));
+      await this.sleep(1000 * (i + 1));
     }
     return response;
   }
@@ -840,4 +1099,3 @@ String.prototype.trim = function (char) {
   }
   return this.replace(/^\s+|\s+$/g, '');
 };
-//# sourceMappingURL=/sm/66a94fc3ec45fb7c78cc4edadd8e448d9b1c735f8c0cebcf7bbb4b40b9caacde.map
